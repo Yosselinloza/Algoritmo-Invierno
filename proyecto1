@@ -1,0 +1,903 @@
+#include "stdafx.h"
+#include "conio.h"
+#include <iostream>
+#include <string>
+#include <iomanip>
+
+
+using namespace std;
+
+struct producto
+{
+	int idprod;
+	char descripcion[30];
+	float costounit;
+	float preciounit;
+	char unidad[5];
+	int idtipo;
+	char estado;
+};
+struct almacen
+{
+	int idalmacen;
+	char descripcion[30];
+	char estado;
+};
+struct un
+{
+	int idun;
+	char descripcion[30];
+	char estado;
+};
+struct usuarios
+{
+	int idusuario;
+	char nombre[30];
+	char estado;
+	char clave[10];
+};
+struct tipoprod
+{
+	int idtipo;
+	char descripcion[30];
+};
+struct stock
+{
+	int idprod;
+	int idalmacen;
+	int ventasacum;
+	int año;
+};
+
+//producto
+
+bool validarID(int id){
+	FILE *ptr;
+	bool w=true;
+	producto reg;
+	ptr=fopen("poductos.dat","rb");
+	if(ptr!=NULL){
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.idprod==id)
+				w=false;
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+		return w;
+	}
+}
+void CrearProducto(char produc[]){
+	FILE*ptr;
+	ptr=fopen(produc,"wb");
+	fclose(ptr);
+
+}
+
+void adicionarproducto(){
+	FILE *ptr;
+	producto reg;
+	ptr=fopen("productos.dat","ab");
+	if(ptr!=NULL){
+		cout<<"id producto: ";
+		cin>>reg.idprod;
+		while(validarID(reg.idprod)){
+			cout<<"ese id producto ya existe!"<<endl;
+			cout<<"ingrese otro: ";
+			cin>>reg.idprod;
+		}
+		fflush(stdin);
+		cout<<"descripcion: ";
+		gets(reg.descripcion);
+		cout<<"costo: ";
+		cin>>reg.costounit;
+		cout<<"precio: ";
+		cin>>reg.preciounit;
+		fflush(stdin);
+		cout<<"unidad: ";
+		gets(reg.unidad);
+		cout<<"ID tipo producto: ";
+		cin>>reg.idtipo;
+		reg.estado='S';
+		fwrite(&reg,sizeof(reg),1,ptr);
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+	
+}
+void modificarproducto(){
+	FILE *ptr;
+	producto reg;
+	int id;
+	ptr=fopen("productos.dat","r+b");
+	if(
+		
+		
+		ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idprod){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idprod && reg.estado=='S'){
+			cout<<"descripcion: ";
+			fflush(stdin);
+			gets(reg.descripcion);
+			cout<<"costo: ";
+			cin>>reg.costounit;
+			cout<<"precio: ";
+			cin>>reg.preciounit;
+			cout<<"unidad: ";
+			fflush(stdin);
+			gets(reg.unidad);
+			cout<<"ID tipo producto: ";
+			cin>>reg.idtipo;
+			fseek(ptr,-1*sizeof(reg),SEEK_CUR);
+			fwrite(&reg,sizeof(reg),1,ptr);
+			fclose(ptr);
+		}
+		else
+			cout<<"el producto no existe";
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void buscarproducto(){
+	FILE *ptr;
+	int id;
+	producto reg;
+	ptr=fopen("productos.dat","rb");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idprod){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idprod && reg.estado=='S'){
+			cout<<"descripcion: "<<reg.descripcion<<endl;
+			cout<<"costo: "<<reg.costounit<<endl;
+			cout<<"precio: "<<reg.preciounit<<endl;
+			cout<<"unidad: "<<reg.unidad<<endl;
+			cout<<"ID tipo producto: "<<reg.idtipo;
+		}
+		else
+			cout<<"el producto no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void eliminarproducto(){
+	FILE *ptr;
+	producto reg;
+	char c;
+	int id;
+	ptr=fopen("productos.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idprod){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idprod && reg.estado=='S'){
+			cout<<"descripcion: "<<reg.descripcion<<endl;
+			cout<<"costo: "<<reg.costounit<<endl;
+			cout<<"precio: "<<reg.preciounit<<endl;
+			cout<<"unidad"<<reg.unidad<<endl;
+			cout<<"ID tipo producto: "<<reg.idtipo<<endl;
+			cout<<"desea eliminar?(S/N): ";
+			cin>>c;
+			if(c=='S'){
+				reg.estado='N';
+				fseek(ptr,(id-1)*sizeof(reg),SEEK_CUR);
+				fwrite(&reg,sizeof(reg),1,ptr);
+				cout<<"el registro se ha eliminado";
+			}
+			else{
+				cout<<"el registro no se ha eliminado";
+			}
+			
+		}
+		else
+			cout<<"el producto no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void listarproducto(){
+	FILE *ptr;
+	ptr=fopen("productos.dat","rb");
+	producto reg;
+	if(ptr!=NULL){
+		cout<<endl<<"        **********        L   I   S   T   A       ******** "<<endl<<endl;
+		cout<<setw(5)<<"ID producto"<<setw(15)<<"descripcion"<<setw(15)<<"costo"<<setw(10)<<"precio"<<setw(13)<<"unidad"<<setw(12)<<"ID tipo producto"<<endl;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.estado=='S'){
+				cout<<setw(3)<<reg.idprod<<setw(18)<<reg.descripcion<<setw(20)<<reg.costounit<<setw(13)<<reg.preciounit<<setw(15)<<reg.unidad<<setw(10)<<reg.idtipo<<endl;
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+}
+int main(){
+	int opcion;
+	do{
+		system("cls");
+		do{
+		system("cls");
+		cout << "\tProducto\n";
+		cout << "1.Crear Archivo\n";
+		cout << "2.Adicionar\n";
+		cout << "3.Modificar\n";
+		cout << "4.Buscar\n";
+		cout << "5.Eliminar\n";
+		cout << "6.Listar\n";
+		cout << "0.Salir\n";
+		cout << "\nEscoja una opcion: \n";
+		cin.clear();
+		fflush(stdin);
+		}while(!(cin>>opcion));
+		switch (opcion)
+		{
+		case 1:CrearProducto("productos.dat");
+			break;
+		case 2:
+			adicionarproducto();
+			getch();
+			break;
+		case 3: 
+			modificarproducto();
+			getch();
+			break;
+		case 4:
+			buscarproducto();
+			getch();
+			break;
+		case 5: 
+			eliminarproducto();
+			getch();
+			break;
+		case 6:
+			listarproducto();
+			getch();
+			break;
+		case 0: cout << "SALIR";
+			break;
+		default: cout << "ERROR";
+			getch();
+			break;
+		}
+		system("cls");
+	} while (opcion!=0);
+}
+
+//Almacen
+bool validarIDA(int id){
+	FILE *ptr;
+	bool w=true;
+	almacen reg;
+	ptr=fopen("almacen.dat","rb");
+	if(ptr!=NULL){
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.idalmacen==id)
+				w=false;
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+		return w;
+	}
+}
+void CrearAlmacen(char almac[]){
+	FILE*ptr;
+	ptr=fopen(almac,"wb");
+	fclose(ptr);
+
+}
+
+void adicionaralmacen(){
+	FILE *ptr;
+	almacen reg;
+	ptr=fopen("almacen.dat","ab");
+	if(ptr!=NULL){
+		cout<<"id Almacen: ";
+		cin>>reg.idalmacen;
+		while(!validarIDA(reg.idalmacen)){
+			cout<<"ese id almacen ya existe!"<<endl;
+			cout<<"ingrese otro: ";
+			cin>>reg.idalmacen;
+		}
+		fflush(stdin);
+		cout<<"descripcion: ";
+		gets(reg.descripcion);
+		reg.estado='S';
+		fwrite(&reg,sizeof(reg),1,ptr);
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+	
+}
+void modificaralmacen(){
+	FILE *ptr;
+	almacen reg;
+	int id;
+	ptr=fopen("almacen.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idalmacen){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idalmacen && reg.estado=='S'){
+			cout<<"descripcion: ";
+			fflush(stdin);
+			gets(reg.descripcion);
+//			fseek(ptr,-1*sizeof(reg),SEEK_CUR);
+			fwrite(&reg,sizeof(reg),1,ptr);
+			fclose(ptr);
+		}
+		else
+			cout<<"el producto no existe";
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void buscaralmacen(){
+	FILE *ptr;
+	int id;
+	almacen reg;
+	ptr=fopen("almacen.dat","rb");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idalmacen){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+			if(id==reg.idalmacen && reg.estado=='S')
+				cout<<"descripcion: "<<reg.descripcion<<endl;
+			else
+				cout<<"el producto no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void eliminaralmacen(){
+	FILE *ptr;
+	almacen reg;
+	char c;
+	int id;
+	ptr=fopen("almacen.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idalmacen){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idalmacen && reg.estado=='S'){
+			cout<<"descripcion: "<<reg.descripcion<<endl;
+			cout<<"desea eliminar?(S/N): ";
+			cin>>c;
+			if(c=='S'){
+				reg.estado='N';
+				fseek(ptr,(id-1)*sizeof(reg),SEEK_CUR);
+				fwrite(&reg,sizeof(reg),1,ptr);
+				cout<<"el registro se ha eliminado";
+			}
+			else{
+				cout<<"el registro no se ha eliminado";
+			}
+			
+		}
+		else
+			cout<<"el producto no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void listaralmacen(){
+	FILE *ptr;
+	ptr=fopen("almacen.dat","rb");
+	almacen reg;
+	if(ptr!=NULL){
+		cout<<endl<<"*****   L   I   S   T   A  ***** "<<endl<<endl;
+		cout<<setw(15)<<"ID Alamacen"<<setw(15)<<"Desccripcion"<<endl;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.estado=='S'){
+				cout<<setw(14)<<reg.idalmacen<<setw(15)<<reg.descripcion<<endl;
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+}
+int main(){
+	int opcion;
+	do{
+		system("cls");
+		do{
+		system("cls");
+		cout << "\tAlmacen\n";
+		cout << "1.Crear Archivo\n";
+		cout << "2.Adicionar\n";
+		cout << "3.Modificar\n";
+		cout << "4.Buscar\n";
+		cout << "5.Eliminar\n";
+		cout << "6.Listar\n";
+		cout << "0.Salir\n";
+		cout << "\nEscoja una opcion: \n";
+		cin.clear();
+		fflush(stdin);
+		}while(!(cin>>opcion));
+		switch (opcion)
+		{
+		case 1:CrearAlmacen("almacen.dat");
+			break;
+		case 2:
+			adicionaralmacen();
+			getch();
+			break;
+		case 3: 
+			modificaralmacen();
+			getch();
+			break;
+		case 4:
+			buscaralmacen();
+			getch();
+			break;
+		case 5: 
+			eliminaralmacen();
+			getch();
+			break;
+		case 6:
+			listaralmacen();
+			getch();
+			break;
+		case 0: cout << "SALIR";
+			break;
+		default: cout << "ERROR";
+			getch();
+			break;
+		}
+		system("cls");
+	} while (opcion!=0);
+}
+///UN
+
+bool validarIDUN(int id){
+	FILE *ptr;
+	bool w=true;
+	un reg;
+	ptr=fopen("unidad.dat","rb");
+	if(ptr!=NULL){
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.idun==id)
+				w=false;
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+		return w;
+	}
+}
+void CrearUN(char UNegocio[]){
+	FILE*ptr;
+	ptr=fopen(UNegocio,"wb");
+	fclose(ptr);
+
+}
+
+void adicionarUN(){
+	FILE *ptr;
+	un reg;
+	ptr=fopen("unidad.dat","ab");
+	if(ptr!=NULL){
+		cout<<"id UN: ";
+		cin>>reg.idun;
+		while(!validarIDUN(reg.idun)){
+			cout<<"ese id UN ya existe!"<<endl;
+			cout<<"ingrese otro: ";
+			cin>>reg.idun;
+		}
+		fflush(stdin);
+		cout<<"descripcion: ";
+		gets(reg.descripcion);
+		reg.estado='S';
+		fwrite(&reg,sizeof(reg),1,ptr);
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+	
+}
+void modificarUN(){
+	FILE *ptr;
+	un reg;
+	int id;
+	ptr=fopen("unidad.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idun){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+
+		if(id==reg.idun && reg.estado=='S'){
+			cout<<"descripcion: ";
+			fflush(stdin);
+			gets(reg.descripcion);
+//			fseek(ptr,-1*sizeof(reg),SEEK_CUR);
+			fwrite(&reg,sizeof(reg),1,ptr);
+			fclose(ptr);
+		}
+		else
+			cout<<"el producto no existe";
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void buscarUN(){
+	FILE *ptr;
+	int id;
+	un reg;
+	ptr=fopen("unidad.dat","rb");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idun){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idun && reg.estado=='S')
+				cout<<"descripcion: "<<reg.descripcion<<endl;
+			else
+				cout<<"el producto no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void eliminarUN(){
+	FILE *ptr;
+	un reg;
+	char c;
+	int id;
+	ptr=fopen("unidad.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idun){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idun && reg.estado=='S'){
+			cout<<"descripcion: "<<reg.descripcion<<endl;
+			cout<<"desea eliminar?(S/N): ";
+			cin>>c;
+			if(c=='S'){
+				reg.estado='N';
+				fseek(ptr,(id-1)*sizeof(reg),SEEK_CUR);
+				fwrite(&reg,sizeof(reg),1,ptr);
+				cout<<"el registro se ha eliminado";
+			}
+			else{
+				cout<<"el registro no se ha eliminado";
+			}
+			
+		}
+		else
+			cout<<"el producto no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void listarUN(){
+	FILE *ptr;
+	ptr=fopen("unidad.dat","rb");
+	un reg;
+	if(ptr!=NULL){
+		cout<<endl<<"*****   L   I   S   T   A  ***** "<<endl<<endl;
+		cout<<setw(15)<<"ID UN"<<setw(15)<<"Desccripcion"<<endl;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.estado=='S'){
+				cout<<setw(14)<<reg.idun<<setw(15)<<reg.descripcion<<endl;
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+}
+int main(){
+	int opcion;
+	do{
+		system("cls");
+		do{
+		system("cls");
+		cout << "\tU. Negocio \n";
+		cout << "1.Crear Archivo\n";
+		cout << "2.Adicionar\n";
+		cout << "3.Modificar\n";
+		cout << "4.Buscar\n";
+		cout << "5.Eliminar\n";
+		cout << "6.Listar\n";
+		cout << "0.Salir\n";
+		cout << "\nEscoja una opcion: \n";
+		cin.clear();
+		fflush(stdin);
+		}while(!(cin>>opcion));
+		switch (opcion)
+		{
+		case 1:CrearUN("unidad.dat");
+			break;
+		case 2:
+			adicionarUN();
+			getch();
+			break;
+		case 3: 
+			modificarUN();
+			getch();
+			break;
+		case 4:
+			buscarUN();
+			getch();
+			break;
+		case 5: 
+			eliminarUN();
+			getch();
+			break;
+		case 6:
+			listarUN();
+			getch();
+			break;
+		case 0: cout << "SALIR";
+			break;
+		default: cout << "ERROR";
+			getch();
+			break;
+		}
+		system("cls");
+	} while (opcion!=0);
+}
+
+
+
+//USUARIO
+
+
+
+
+
+
+
+bool validarIDUS(int id){
+	FILE *ptr;
+	bool w=true;
+	usuarios reg;
+	ptr=fopen("usuario.dat","rb");
+	if(ptr!=NULL){
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.idusuario==id)
+				w=false;
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+		return w;
+	}
+}
+void CrearUsuario(char Usuario[]){
+	FILE*ptr;
+	ptr=fopen(Usuario,"wb");
+	fclose(ptr);
+}
+
+void adicionarusuarios(){
+	FILE *ptr;
+	usuarios reg;
+	ptr=fopen("usuario.dat","ab");
+	if(ptr!=NULL){
+		cout<<"id Usuario: ";
+		cin>>reg.idusuario;
+		while(!validarIDUS(reg.idusuario)){
+			cout<<"ese id UN ya existe!"<<endl;
+			cout<<"ingrese otro: ";
+			cin>>reg.idusuario;
+		}
+		fflush(stdin);
+		cout<<"Nombre: ";
+		gets(reg.nombre);
+		reg.estado='S';
+		fwrite(&reg,sizeof(reg),1,ptr);
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+	
+}
+void modificarusuario(){
+	FILE *ptr;
+	usuarios reg;
+	int id;
+	ptr=fopen("usuario.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idusuario){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+
+		if(id==reg.idusuario && reg.estado=='S'){
+			cout<<"Nombre: ";
+			fflush(stdin);
+			gets(reg.nombre);
+//			fseek(ptr,-1*sizeof(reg),SEEK_CUR);
+			fwrite(&reg,sizeof(reg),1,ptr);
+			fclose(ptr);
+		}
+		else
+			cout<<"el usuario no existe";
+	}
+	else
+		cout<<"el archivo no existe";
+	
+}
+void buscarusuario(){
+	FILE *ptr;
+	int id;
+	usuarios reg;
+	ptr=fopen("usuario.dat","rb");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idusuario){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idusuario && reg.estado=='S')
+				cout<<"Nombre: "<<reg.nombre<<endl;
+			else
+				cout<<"el nombre no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void eliminarusuario(){
+	FILE *ptr;
+	usuarios reg;
+	char c;
+	int id;
+	ptr=fopen("usuario.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idusuario){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idusuario && reg.estado=='S'){
+			cout<<"Nombre: "<<reg.nombre<<endl;
+			cout<<"desea eliminar?(S/N): ";
+			cin>>c;
+			if(c=='S'){
+				reg.estado='N';
+				fseek(ptr,(id-1)*sizeof(reg),SEEK_CUR);
+				fwrite(&reg,sizeof(reg),1,ptr);
+				cout<<"el registro se ha eliminado";
+			}
+			else{
+				cout<<"el registro no se ha eliminado";
+			}
+			
+		}
+		else
+			cout<<"el archivo no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void listarusuario(){
+	FILE *ptr;
+	ptr=fopen("usuario.dat","rb");
+	usuarios reg;
+	if(ptr!=NULL){
+		cout<<endl<<"*****   L   I   S   T   A  ***** "<<endl<<endl;
+		cout<<setw(15)<<"ID Usuario"<<setw(15)<<"Nombre"<<endl;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.estado=='S'){
+				cout<<setw(14)<<reg.idusuario<<setw(15)<<reg.nombre<<endl;
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+}
+int main(){
+	int opcion;
+	do{
+		system("cls");
+		do{
+		system("cls");
+		cout << "\tUsuario \n";
+		cout << "1.Crear Usuario\n";
+		cout << "2.Adicionar\n";
+		cout << "3.Modificar\n";
+		cout << "4.Buscar\n";
+		cout << "5.Eliminar\n";
+		cout << "6.Listar\n";
+		cout << "0.Salir\n";
+		cout << "\nEscoja una opcion: \n";
+		cin.clear();
+		fflush(stdin);
+		}while(!(cin>>opcion));
+		switch (opcion)
+		{
+		case 1:CrearUsuario("usuario.dat");
+			break;
+		case 2:
+			adicionarusuarios();
+			getch();
+			break;
+		case 3: 
+			modificarusuario();
+			getch();
+			break;
+		case 4:
+			buscarusuario();
+			getch();
+			break;
+		case 5: 
+			eliminarusuario();
+			getch();
+			break;
+		case 6:
+			listarusuario();
+			getch();
+			break;
+		case 0: cout << "SALIR";
+			break;
+		default: cout << "ERROR";
+			getch();
+			break;
+		}
+		system("cls");
+	} while (opcion!=0);
+}
