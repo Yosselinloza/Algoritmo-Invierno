@@ -1,0 +1,74 @@
+#include "stdafx.h"
+#include "conio.h"
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+ 
+#define clavetrue 123
+ 
+ 
+using namespace std;
+void bienvenida();
+bool cadena(string cad);
+void contraseña(string cad);
+void clave ();
+int obtEntero();
+void main(){
+       system("COLOR 9f");
+       bienvenida();
+       clave();
+ 
+getch();
+ 
+}
+ 
+void bienvenida(){
+             system("cls");
+             cout<<endl<<"***** PROYECTO DE ALGORITMO I *****"<<endl;
+             cout<<endl<<"**** B I E N V E N I D O S ****"<<endl;
+             cout<<endl<<"          INTEGRANTES:  \n\n";
+             cout<<endl<<"*      Claudia Cordova "<<endl;
+             cout<<endl<<"*      Yosselin Loza "<<endl;
+             cout<<endl<<"*      Paulo Escobar "<<endl<<endl;
+             cout<<endl<<"Santa Cruz"<<endl<<endl;
+             system("pause");
+ 
+}
+bool cadena(string cad){
+bool k=false;
+int tam,i;
+string cad1;
+       cad1=cad;
+       tam=cad1.length();
+       for(i=0;i<tam;i++){
+             if(cad1[i]>='1'&& cad1[i]<='9')
+                           k=true;
+             else
+             {
+                           k=false;
+                           i=tam;
+            
+             }
+       }
+       return (k);
+}
+void clave (){
+ 
+int claveacceso,i=0;
+       do{
+             system("cls");
+             do{
+             system("cls");
+             cout<<"\n\n\n      Ingrese la clave de acceso:\n\n\n "<<endl;
+             cout<<"                 ";
+             cin.clear();
+             fflush(stdin);
+             i++;
+             }while(!(cin>>claveacceso));
+       }while ( claveacceso!=clavetrue && i<3);
+ 
+}
+
+
+////la clave es 123
