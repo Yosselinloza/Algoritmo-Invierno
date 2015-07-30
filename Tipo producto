@@ -54,7 +54,7 @@ bool validarIDTPRO(int id){
 	FILE *ptr;
 	bool w=true;
 	tipoprod reg;
-	ptr=fopen("tipousuario.dat","rb");
+	ptr=fopen("tipoproducto.dat","rb");
 	if(ptr!=NULL){
 		fread(&reg,sizeof(reg),1,ptr);
 		while(!feof(ptr)){
@@ -80,7 +80,7 @@ void adicionartipopro(){
 		cout<<"id Tipo: ";
 		cin>>reg.idtipo;
 		while(!validarIDTPRO(reg.idtipo)){
-			cout<<"ese id Tipo Producto ya existe!"<<endl;
+			cout<<"ese id Tipo producto ya existe!"<<endl;
 			cout<<"ingrese otro: ";
 			cin>>reg.idtipo;
 		}
@@ -95,6 +95,7 @@ void adicionartipopro(){
 		cout<<"el archivo no existe";
 	
 }
+
 void modificartipopro(){
 	FILE *ptr;
 	tipoprod reg;
@@ -183,11 +184,11 @@ void eliminartipopro(){
 }
 void listartipopro(){
 	FILE *ptr;
-	ptr=fopen("tipoproducto","rb");
+	ptr=fopen("tipoproducto.dat","rb");
 	tipoprod reg;
-	if(ptr==NULL){
+	if(ptr!=NULL){
 		cout<<endl<<"*****   L   I   S   T   A  ***** "<<endl<<endl;
-		cout<<setw(15)<<"ID TIPO"<<setw(15)<<"Desccripcion"<<endl;
+		cout<<setw(15)<<"ID Tipo"<<setw(15)<<"Descripcion"<<endl;
 		fread(&reg,sizeof(reg),1,ptr);
 		while(!feof(ptr)){
 			if(reg.estado=='S'){
@@ -198,10 +199,9 @@ void listartipopro(){
 		fclose(ptr);
 	}
 	else
-		cout<<"el archivo no existe:...!!!";
-	
-		
+		cout<<"el archivo no existe";
 }
+
 int main(){
 	int opcion;
 	do{
