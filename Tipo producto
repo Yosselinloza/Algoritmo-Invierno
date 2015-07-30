@@ -1,0 +1,255 @@
+#include "stdafx.h"
+#include "conio.h"
+#include <iostream>
+#include <string>
+#include <iomanip>
+
+
+using namespace std;
+
+struct producto
+{
+	int idprod;
+	char descripcion[30];
+	float costounit;
+	float preciounit;
+	char unidad[5];
+	int idtipo;
+	char estado;
+};
+struct almacen
+{
+	int idalmacen;
+	char descripcion[30];
+	char estado;
+};
+struct un
+{
+	int idun;
+	char descripcion[30];
+	char estado;
+};
+struct usuarios
+{
+	int idusuario;
+	char nombre[30];
+	char estado;
+	char clave[10];
+};
+struct tipoprod
+{
+	int idtipo;
+	char descripcion[30];
+	char estado ;
+};
+struct stock
+{
+	int idprod;
+	int idalmacen;
+	int ventasacum;
+	int año;
+};
+
+bool validarIDTPRO(int id){
+	FILE *ptr;
+	bool w=true;
+	tipoprod reg;
+	ptr=fopen("tipousuario.dat","rb");
+	if(ptr!=NULL){
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.idtipo==id)
+				w=false;
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+		return w;
+	}
+}
+void CrearUsuario(char TipoProd[]){
+	FILE*ptr;
+	ptr=fopen(TipoProd,"wb");
+	fclose(ptr);
+}
+
+void adicionartipopro(){
+	FILE *ptr;
+	tipoprod reg;
+	ptr=fopen("tipoproducto.dat","ab");
+	if(ptr!=NULL){
+		cout<<"id Tipo: ";
+		cin>>reg.idtipo;
+		while(!validarIDTPRO(reg.idtipo)){
+			cout<<"ese id Tipo Producto ya existe!"<<endl;
+			cout<<"ingrese otro: ";
+			cin>>reg.idtipo;
+		}
+		fflush(stdin);
+		cout<<"Descripcion: ";
+		gets(reg.descripcion);
+		reg.estado='S';
+		fwrite(&reg,sizeof(reg),1,ptr);
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe";
+	
+}
+void modificartipopro(){
+	FILE *ptr;
+	tipoprod reg;
+	int id;
+	ptr=fopen("tipoproducto.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idtipo){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+
+		if(id==reg.idtipo && reg.estado=='S'){
+			cout<<"Descripcion: ";
+			fflush(stdin);
+			gets(reg.descripcion);
+			fseek(ptr,-1*sizeof(reg),SEEK_CUR);
+			fwrite(&reg,sizeof(reg),1,ptr);
+			fclose(ptr);
+		}
+		else
+			cout<<"el tipo producto no existe";
+	}
+	else
+		cout<<"el archivo no existe";
+	
+}
+void buscartipopro(){
+	FILE *ptr;
+	int id;
+	tipoprod reg;
+	ptr=fopen("tipoproducto.dat","rb");
+	if(ptr!=NULL){
+		cout<<"ingrese id tipo: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idtipo){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idtipo && reg.estado=='S')
+				cout<<"Descripcion: "<<reg.descripcion<<endl;
+			else
+				cout<<"el tipo de producto no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void eliminartipopro(){
+	FILE *ptr;
+	tipoprod reg;
+	char c;
+	int id;
+	ptr=fopen("tipoproducto.dat","r+b");
+	if(ptr!=NULL){
+		cout<<"ingrese id: ";
+		cin>>id;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr) && id!=reg.idtipo){
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		if(id==reg.idtipo && reg.estado=='S'){
+			cout<<"Descipcion: "<<reg.descripcion<<endl;
+			cout<<"desea eliminar?(S/N): ";
+			cin>>c;
+			if(c=='S'){
+				reg.estado='N';
+				fseek(ptr,(id-1)*sizeof(reg),SEEK_CUR);
+				fwrite(&reg,sizeof(reg),1,ptr);
+				cout<<"el registro se ha eliminado";
+			}
+			else{
+				cout<<"el registro no se ha eliminado";
+			}
+			
+		}
+		else
+			cout<<"el archivo no existe";
+		fclose(ptr);
+	}
+	else{
+		cout<<"el archivo no existe";
+	}
+}
+void listartipopro(){
+	FILE *ptr;
+	ptr=fopen("tipoproducto","rb");
+	tipoprod reg;
+	if(ptr==NULL){
+		cout<<endl<<"*****   L   I   S   T   A  ***** "<<endl<<endl;
+		cout<<setw(15)<<"ID TIPO"<<setw(15)<<"Desccripcion"<<endl;
+		fread(&reg,sizeof(reg),1,ptr);
+		while(!feof(ptr)){
+			if(reg.estado=='S'){
+				cout<<setw(14)<<reg.idtipo<<setw(15)<<reg.descripcion<<endl;
+			}
+			fread(&reg,sizeof(reg),1,ptr);
+		}
+		fclose(ptr);
+	}
+	else
+		cout<<"el archivo no existe:...!!!";
+	
+		
+}
+int main(){
+	int opcion;
+	do{
+		system("cls");
+		do{
+		system("cls");
+		cout << "\n  Tipo Producto\n";
+		cout << "1.Crear Tipo Producto\n";
+		cout << "2.Adicionar\n";
+		cout << "3.Modificar\n";
+		cout << "4.Buscar\n";
+		cout << "5.Eliminar\n";
+		cout << "6.Listar\n";
+		cout << "0.Salir\n";
+		cout << "\nEscoja una opcion: \n";
+		cin.clear();
+		fflush(stdin);
+		}while(!(cin>>opcion));
+		switch (opcion)
+		{
+		case 1:CrearUsuario("tipoproducto.dat");
+			break;
+		case 2:
+			adicionartipopro();
+			getch();
+			break;
+		case 3: 
+			modificartipopro();
+			getch();
+			break;
+		case 4:
+			buscartipopro();
+			getch();
+			break;
+		case 5: 
+			eliminartipopro();
+			getch();
+			break;
+		case 6:
+			listartipopro();
+			getch();
+			break;
+		case 0: cout << "SALIR";
+			break;
+		default: cout << "ERROR";
+			getch();
+			break;
+		}
+		system("cls");
+	} while (opcion!=0);
+}
